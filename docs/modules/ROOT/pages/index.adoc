@@ -1,0 +1,11 @@
+= Koble Filesystem
+
+== Overview
+
+The `koble-fs` repo contains scripts and configuration for building the
+filesystem used by Koble virtual machines.
+This includes the container image build for the Podman driver,
+the ext4 image file for the User-Mode Linux driver.
+Additionally,
+this repo contains a Containerfile for creating the `uml-runner`
+container image which wraps UML instances.
