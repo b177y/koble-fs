@@ -1,1 +1,31 @@
 = Packages
+
+== Installing Additional Packages
+
+To install additional packages to the filesystem,
+edit `packages-list` and add the package name to the list.
+The name to add would be the name you would use with the package manager.
+For example,
+to install nginx we would run `apt install nginx`,
+so we add `nginx` to the list.
+
+== Modifying Disabled Services
+
+Sometimes packages will add a `systemd` service which will be enabled
+after install,
+which often isn't necessary for a Koble machine.
+It is best to disable these services in the image build,
+and then enable them in machine `.startup` files if needed.
+To do this we add the name of the service to `disabled-services`.
+
+== Debconf Package Selections
+
+Some packages allow you to make configuration choices during installation.
+As the Koble image build is automated and not interactive,
+we need to make these selections manually.
+
+Using
+link:http://manpages.ubuntu.com/manpages/bionic/man1/debconf-set-selections.1.html[debconf-set-selections]
+we can modify values in the debconf database.
+The file `debconf-package-selections` can be modified to change debconf seletions
+for the image build where necessary.

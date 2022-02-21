@@ -1,1 +1,23 @@
 = Filesystem Tweaks
+
+== Adding Custom Files
+
+The directory `filesystem-tweaks` gets copied to `/` in the fs image,
+overriding existing files.
+If we want to add configuration files, system services etc to the image,
+we can add them to this directory.
+
+For example,
+we have `filesystem-tweaks/etc/motd`
+which ends up at `/etc/motd` in the built image.
+
+This contains:
+
+[source]
+----
+Welcome to Koble
+
+----
+
+This uses the link:https://linuxhint.com/show-motd-in-linux/[motd]
+to show this message every time you log in.
