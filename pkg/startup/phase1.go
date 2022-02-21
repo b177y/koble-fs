@@ -70,6 +70,7 @@ func loadEnv() (conf VConf, err error) {
 		return conf, err
 	}
 	envVars := strings.Split(string(envBytes), "\000")
+	log.Debugf("got /proc/1/environ: %v\n", envVars)
 	opts := make(map[string]interface{}, 0)
 	for _, v := range envVars {
 		if !strings.HasPrefix(v, "kstart-") || len(v) < 8 {
@@ -81,6 +82,7 @@ func loadEnv() (conf VConf, err error) {
 		}
 		opts[kv[0]] = kv[1]
 	}
+	log.Debugf("parsed environ: %v\n", opts)
 	conf.HostName, err = os.Hostname()
 	if err != nil {
 		return conf, err
@@ -130,6 +132,7 @@ func hostsFile(name string) error {
 }
 
 func setupHosts(name string) error {
+	log.Infof("setting up /etc/hosts and hostname (%s)\n", name)
 	_, err := os.Stat("/etc/vhostconfigured")
 	if err != nil && !os.IsNotExist(err) {
 		return err
@@ -156,7 +159,7 @@ func copyInFiles(hostname string) error {
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	} else if err == nil {
-		log.Debug("copying in files from shared dir")
+		log.Info("copying in files from /hostlab/shared")
 		err := cp.Copy("/hostlab/shared", "/", opts)
 		if err != nil {
 			return err
@@ -168,7 +171,7 @@ func copyInFiles(hostname string) error {
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	} else if err == nil {
-		log.Debug("copying in files from machine dir")
+		log.Infof("copying in files from %s\n", machineDir)
 		err := cp.Copy(machineDir, "/", opts)
 		if err != nil {
 			return err
@@ -178,6 +181,7 @@ func copyInFiles(hostname string) error {
 }
 
 func umlSetup(conf VConf) (err error) {
+	log.Debug("mounting /hostlab with hostfs")
 	if conf.HostLab {
 		os.Mkdir("/hostlab", 0744)
 		err = mountDir("/hostlab", "/hostlab")
@@ -185,6 +189,7 @@ func umlSetup(conf VConf) (err error) {
 			return fmt.Errorf("could not mount /hostlab: %w", err)
 		}
 	}
+	log.Debug("mounting /run/uml-guest with hostfs")
 	os.Mkdir("/run/uml-guest", 0744)
 	err = mountDir("/run/uml", "/run/uml-guest")
 	if err != nil {
@@ -194,7 +199,6 @@ func umlSetup(conf VConf) (err error) {
 }
 
 func setupIfaces(ifaces map[string]string, defRoute string) error {
-	log.Debug("setting up interfaces: ", ifaces)
 	for iface, addr := range ifaces {
 		if addr == "" {
 			continue
@@ -209,6 +213,7 @@ func setupIfaces(ifaces map[string]string, defRoute string) error {
 			log.Error(err)
 			continue
 		}
+		log.Infof("setting up interface %s with address %s\n", iface, addr)
 		err = netlink.AddrAdd(i, a)
 		if err != nil {
 			log.Error(err)
@@ -239,6 +244,7 @@ func setupIfaces(ifaces map[string]string, defRoute string) error {
 			Dst:       dst,
 			Gw:        gwIp,
 		}
+		log.Infof("setting up default route %s for iface %s\n", ia[1], ia[0])
 		err = netlink.RouteAdd(&r)
 		if err != nil {
 			return fmt.Errorf("cannot set default route to %s: %w", defRoute, err)
@@ -260,6 +266,7 @@ func renameVecs() error {
 			if err != nil {
 				log.Error(err)
 			}
+			log.Debugf("renaming interface %s to %s\n", name, "eth"+suffix)
 			err = netlink.LinkSetAlias(i, name) // save original name as alias
 			if err != nil {
 				log.Error(err)
@@ -307,10 +314,12 @@ func StartPhaseOne() error {
 }
 
 func Shutdown() error {
+	log.Info("unmounting /hostlab")
 	err := syscall.Unmount("/hostlab", 0)
 	if err != nil {
 		log.Errorf("could not unmount /hostlab: %v", err)
 	}
+	log.Info("unmounting /run/uml-guest")
 	err = syscall.Unmount("/run/uml-guest", 0)
 	if err != nil {
 		log.Errorf("could not unmount /run/uml-guest: %v", err)

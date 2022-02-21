@@ -15,6 +15,7 @@ func runStartup(path string) error {
 	} else if os.IsNotExist(err) {
 		return nil
 	}
+	log.Infof("running startup script %s\n", path)
 	cmd := exec.Cmd{
 		Path:   "/bin/bash",
 		Args:   []string{"-c", path},
@@ -37,7 +38,6 @@ func StartPhaseTwo() error {
 	if err != nil {
 		log.Error("error running machine startup script: %v", err)
 	}
-	fmt.Println("driver is", conf.Driver)
 	if conf.Driver == "UML" {
 		return os.WriteFile("/run/uml-guest/machine.ready", []byte(""), 0644)
 	}

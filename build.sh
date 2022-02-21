@@ -23,6 +23,8 @@ buildah run $wc apt install --assume-yes ${PACKAGES_LIST}
 
 cat ./packages-custom | buildah run $wc bash -
 
+buildah run $wc update-alternatives --set iptables /usr/sbin/iptables-legacy
+
 buildah run $wc apt clean
 
 #buildah run $wc apt install --assume-yes --no-install-recommends wireguard-tools
@@ -61,6 +63,6 @@ for SERVICE in $DISABLED_SERVICES; do
 done
 
 echo "Commiting image"
-buildah commit $wc koble-deb-test
+buildah commit $wc docker.io/b177y/koble-deb
 
 buildah rm $wc

@@ -98,3 +98,4 @@ ncat
 # smcroute -- removed because of smcroute conflict
 # pimd -- removed because of pimd conflict
 #micro -- download binary
+nano

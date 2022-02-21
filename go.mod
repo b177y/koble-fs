@@ -7,6 +7,8 @@ require github.com/spf13/cobra v1.3.0
 require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/knadh/koanf v1.4.0 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect

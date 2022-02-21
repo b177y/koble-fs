@@ -1,7 +1,10 @@
 #!/bin/bash
 
 mkdir -p build
-wc=$(buildah from koble-deb-test)
+wc=$(buildah from docker.io/b177y/koble-deb)
+
+# Copy in kernel modules
+buildah copy $wc lib/ /lib
 
 # Set CAD action to poweroff instead of reboot
 # this allows us to use uml_mconsole to cleanly shutdown a UML instance
