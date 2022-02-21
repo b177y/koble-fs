@@ -1,1 +1,50 @@
 = kstart
+
+== Overview
+
+`kstart` is the tool used during Koble machines' startup and shutdown to
+ensure everything is set up / stopped properly.
+This replaces the `netkit-phase1` and `netkit-phase2` scripts which
+were used in
+link:https://github.com/netkit-jh/netkit-jh-build[Netkit].
+
+The tool is run automatically by the `koble-*` services in
+`filesystem-tweaks/usr/lib/systemd/system/`.
+
+It is written in Golang,
+and uses Cobra as a CLI helper library.
+The CLI structure is defined in `cmd/` and the main functionality is contained
+within `pkg/startup`.
+
+== Functionality
+
+During phase 1 of startup, `kstart` will:
+
+* Mount directories (for uml)
+* Setup network interfaces
+* Rename vecX interfaces to ethX (for uml vector networking)
+* Setup /etc/hosts and the machine hostname
+* Copy in files from */hostlab/MACHINE* to */* within the guest
+
+During phase 2, `kstart` will:
+
+* Run the machine specific startup script
+* Run the shared lab startup script
+* Create the file */run/uml-guest/machine.ready*,
+allowing Podman's healthcheck to detect that the machine has
+finished booting. (uml only)
+
+During shutdown, `kstart` will:
+
+* Unmount directories
+* Run machine specific shutdown script (TODO)
+
+== Building
+
+Before building the filesystem,
+`kstart` must be compiled so it can be copied into the image.
+
+[source,sh]
+----
+go build -o filesystem-tweaks/usr/local/bin/kstart cmd/*
+----

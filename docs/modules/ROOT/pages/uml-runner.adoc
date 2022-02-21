@@ -1,1 +1,43 @@
 = uml-runner
+
+== Overview
+
+The `uml-runner` container image is used to run User-Mode Linux
+instances within Podman rootless containers.
+It is an Ubuntu 22.04 image with an entrypoint script which sets up the
+container for the guest UML instance.
+
+== Building
+
+First you need to compile the `mconsole` binary:
+
+[source,sh]
+----
+git clone https://github.com/b177y/go-uml-utilities
+cd go-uml-utilities
+go build -o mconsole cmd/mconsole/main.go
+----
+
+Then you can build the image using the `Containerfile`
+
+[source,sh]
+----
+git clone https://github.com/b177y/koble-fs
+cd koble-fs
+cp /path/to/go-uml-utilities/mconsole .
+
+podman build -f Containerfile -t docker.io/b177y/uml-runner
+----
+
+== Entrypoint
+
+The script `entrypoint.sh` performs the following actions:
+
+* For each network interface
+** Add `kstart` param for interface address and default GW to add
+to the kernel command line
+** Delete IP address from interface
+* Setup mountpoints
+** Create directory */run/uml* (which uml guest will mount to /run/uml-guest)
+** Remove file */run/uml/machine.ready* which could be left from previous run
+* Start UML kernel binary
